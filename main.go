@@ -45,8 +45,9 @@ func main() {
 		}
 	})
 
-	// Rota da API para retornar dados JSON
+	// Controllers
 	http.HandleFunc("/api/partidas", handler.GetPartidas) // Ajustado para /api/partidas
+	http.HandleFunc("/api/times", handler.GetTimes)       // Ajustado para /api/times
 
 	// Servir arquivos estáticos
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("static/css"))))

@@ -1,19 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
     const partidasTable = document.getElementById('partidasTable').getElementsByTagName('tbody')[0];
 
-    const API_URL = '/api/partidas'; // Atualizado para refletir a nova rota da API
+    const API_URL = '/api/partidas';
 
     // Função para carregar todas as partidas
     function loadPartidas() {
         fetch(API_URL)
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(fmt.Sprintf("Network response was not ok for: %s", API_URL));
                 }
                 return response.json();
             })
             .then(data => {
-                console.log('Dados recebidos:', data); // Adicione este log para verificar os dados
+                // console.log('Dados recebidos:', data);
                 partidasTable.innerHTML = '';
                 data.forEach(partida => {
                     const row = partidasTable.insertRow();

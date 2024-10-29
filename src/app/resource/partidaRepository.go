@@ -8,11 +8,11 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var dbPartidas *sql.DB
 
 func init() {
 	var err error
-	db, err = sql.Open("postgres", "user=postgres password=sjtbmix6 dbname=santino-bolao sslmode=disable")
+	dbPartidas, err = sql.Open("postgres", "user=postgres password=sjtbmix6 dbname=santino-bolao sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -28,7 +28,7 @@ func GetPartidas(filtro model.FiltroPartida) ([]model.Partida, error) {
     `
 
 	// Executar a consulta passando o filtro.Rodada como parâmetro
-	rows, err := db.Query(query, filtro.Rodada)
+	rows, err := dbPartidas.Query(query, filtro.Rodada)
 	if err != nil {
 		return nil, err
 	}
@@ -61,13 +61,13 @@ func GetPartidas(filtro model.FiltroPartida) ([]model.Partida, error) {
 }
 
 func CreatePartida(partida model.Partida) error {
-	_, err := db.Exec(`INSERT INTO "schema-bolao-24"."Partida" ("Rodada", "Time Casa", "Casa Gols", "Time Fora", "Fora Gols", "Data", "Vencedor") VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+	_, err := dbPartidas.Exec(`INSERT INTO "schema-bolao-24"."Partida" ("Rodada", "Time Casa", "Casa Gols", "Time Fora", "Fora Gols", "Data", "Vencedor") VALUES ($1, $2, $3, $4, $5, $6, $7)`,
 		partida.Rodada, partida.TimeCasa, partida.CasaGols, partida.TimeFora, partida.ForaGols, partida.Data, partida.Vencedor)
 	return err
 }
 
 func UpdatePartida(id string, partida model.Partida) error {
-	_, err := db.Exec(`UPDATE "schema-bolao-24"."Partida" SET "Rodada" = $1, "Time Casa" = $2, "Casa Gols" = $3, "Time Fora" = $4, "Fora Gols" = $5, "Data" = $6, "Vencedor" = $7 WHERE "Id" = $8`,
+	_, err := dbPartidas.Exec(`UPDATE "schema-bolao-24"."Partida" SET "Rodada" = $1, "Time Casa" = $2, "Casa Gols" = $3, "Time Fora" = $4, "Fora Gols" = $5, "Data" = $6, "Vencedor" = $7 WHERE "Id" = $8`,
 		partida.Rodada, partida.TimeCasa, partida.CasaGols, partida.TimeFora, partida.ForaGols, partida.Data, partida.Vencedor, id)
 	return err
 }
