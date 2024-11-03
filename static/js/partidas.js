@@ -1,42 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const partidasTable = document.getElementById('partidasTable').getElementsByTagName('tbody')[0];
+    const loadTimesTable = false;
 
-    const API_URL = '/api/partidas';
-
-    // Função para carregar todas as partidas
-    function loadPartidas() {
-        fetch(API_URL)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(fmt.Sprintf("Network response was not ok for: %s", API_URL));
-                }
-                return response.json();
-            })
-            .then(data => {
-                // console.log('Dados recebidos:', data);
-                partidasTable.innerHTML = '';
-                data.forEach(partida => {
-                    const row = partidasTable.insertRow();
-                    row.innerHTML = `
-                        <td>${partida.id}</td>
-                        <td>${partida.rodada}</td>
-                        <td>${partida.time_casa}</td>
-                        <td>${partida.casa_gols}</td>
-                        <td>${partida.time_fora}</td>
-                        <td>${partida.fora_gols}</td>
-                        <td>${partida.data}</td>
-                        <td>${partida.vencedor}</td>
-                        <td>
-                            <button onclick="editPartida(${partida.id})">Editar</button>
-                            <button onclick="deletePartida(${partida.id})">Excluir</button>
-                        </td>
-                    `;
-                });
-            })
-            .catch(error => {
-                console.error('Erro ao carregar partidas:', error);
-            });
-    }
+    // Carregar os times antes de carregar as partidas
+    loadTimes(loadTimesTable).then(() => {
+        loadPartidas(); // Chama loadPartidas após os times serem carregados
+        console.log("teste times -->", times);
+    });
 
     // Função para editar uma partida
     window.editPartida = function(id) {
@@ -63,7 +32,4 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     };
-
-    // Carregar partidas quando a página for carregada
-    loadPartidas();
 });
