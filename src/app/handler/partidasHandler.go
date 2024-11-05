@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -26,13 +27,26 @@ func PartidaHandler(w http.ResponseWriter, r *http.Request) {
 func GetPartidas(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Substitua este código pelo real acesso ao banco de dados
-	partidas, err := service.GetPartidas(model.FiltroPartida{Rodada: 1})
+	// Captura o valor da rodada da query string (se houver)
+	rodadaStr := r.URL.Query().Get("rodada")
+	rodada := 1 // valor default, caso não seja especificado na URL
+	if rodadaStr != "" {
+		var err error
+		rodada, err = strconv.Atoi(rodadaStr)
+		if err != nil {
+			http.Error(w, "Rodada inválida", http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Passa a rodada como filtro para o serviço
+	partidas, err := service.GetPartidas(model.FiltroPartida{Rodada: rodada})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Retorna as partidas em formato JSON
 	json.NewEncoder(w).Encode(partidas)
 }
 

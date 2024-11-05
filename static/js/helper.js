@@ -1,14 +1,11 @@
 let times = [];
 
-const API_URL_TIMES = '/api/times';
-const API_URL_PARTIDAS = '/api/partidas';
-
 // Função para carregar os times
 function loadTimes(loadTable) {
-    return fetch(API_URL_TIMES)  // Retorna a Promise do fetch
+    return fetch('/api/times')  // Retorna a Promise do fetch
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Network response was not ok for: ${API_URL_TIMES}`);
+                throw new Error(`Network response was not ok for: ${'/api/times'}`);
             }
             return response.json();
         })
@@ -36,13 +33,13 @@ function loadTimesTable(times) {
 }
 
 // Função para carregar todas as partidas
-function loadPartidas() {
+function loadPartidas(rodada) {
     const partidasTable = document.getElementById('partidasTable').getElementsByTagName('tbody')[0];
 
-    fetch(API_URL_PARTIDAS)
+    fetch(`/api/partidas?rodada=${rodada}`)
         .then(response => {
             if (!response.ok) {
-                throw new Error(`Network response was not ok for: ${API_URL_PARTIDAS}`);
+                throw new Error(`Network response was not ok for: /api/partidas --> rodada:${rodada}`);
             }
             return response.json();
         })
@@ -56,7 +53,6 @@ function loadPartidas() {
                 const row = partidasTable.insertRow();
                 row.innerHTML = `
                     <td>${partida.id}</td>
-                    <td>${partida.rodada}</td>
                     <td>${timeCasa ? timeCasa.nome : 'Desconhecido'}</td>
                     <td>${partida.casa_gols}</td>
                     <td>${timeFora ? timeFora.nome : 'Desconhecido'}</td>

@@ -15,13 +15,18 @@
             {{ template "menu.html" . }}
         </aside>
         <main>
-            <h2>Lista de Partidas</h2>
+            <h2>Rodada: <span id="rodadaDisplay">1</span></h2>
+            <div>
+                <label for="dropRodada">Escolha a Rodada:</label>
+                <select id="dropRodada">
+                    <!-- As opções de rodadas serão inseridas dinamicamente -->
+                </select>
+            </div>
             <div class="list-container">
                 <table id="partidasTable">
                     <thead>
                         <tr>
                             <th>ID</th>
-                            <th>Rodada</th>
                             <th>Time Casa</th>
                             <th>Gols Casa</th>
                             <th>Time Fora</th>

@@ -13,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(partida => {
                 document.getElementById('partidaId').value = partida.id;
-                document.getElementById('rodada').value = partida.rodada;
                 document.getElementById('timeCasa').value = partida.time_casa;
                 document.getElementById('casaGols').value = partida.casa_gols;
                 document.getElementById('timeFora').value = partida.time_fora;
@@ -32,4 +31,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
     };
+
+    CarregarDropRodada()
+
+    // Carregamento inicial
+    dropRodada.value = 1; 
+    document.getElementById('rodadaDisplay').textContent = dropRodada.value;
+    loadPartidas(dropRodada.value);
+
+    // Atualizar o título e carregar as partidas quando o usuário selecionar uma rodada
+    dropRodada.addEventListener('change', function() {
+        const rodadaSelecionada = dropRodada.value;
+        document.getElementById('rodadaDisplay').textContent = rodadaSelecionada;
+        loadPartidas(rodadaSelecionada); 
+    });
 });
+
+function CarregarDropRodada(){
+    const dropRodada = document.getElementById('dropRodada');
+
+    // Preencher o dropdown com as rodadas de 1 a 38
+    for (let i = 1; i <= 38; i++) {
+        let option = document.createElement('option');
+        option.value = i;
+        option.textContent = `Rodada ${i}`;
+        dropRodada.appendChild(option);
+    }
+};
