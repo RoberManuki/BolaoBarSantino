@@ -4,7 +4,7 @@ import (
 	"bolao/src/app/model"
 	"bolao/src/app/service"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -29,7 +29,7 @@ func GetPartidas(w http.ResponseWriter, r *http.Request) {
 
 	// Captura o valor da rodada da query string (se houver)
 	rodadaStr := r.URL.Query().Get("rodada")
-	rodada := 1 // valor default, caso não seja especificado na URL
+	rodada := 1
 	if rodadaStr != "" {
 		var err error
 		rodada, err = strconv.Atoi(rodadaStr)
@@ -51,29 +51,32 @@ func GetPartidas(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreatePartida(w http.ResponseWriter, r *http.Request) {
-	var partida model.Partida
-	body, err := ioutil.ReadAll(r.Body)
+	var partidaCreate model.PartidaCreate
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = json.Unmarshal(body, &partida)
+
+	err = json.Unmarshal(body, &partidaCreate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	err = service.CreatePartida(partida)
+
+	err = service.CreatePartida(partidaCreate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
 func UpdatePartida(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/partidas/")
 	var partida model.Partida
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

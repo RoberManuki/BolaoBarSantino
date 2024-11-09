@@ -3,8 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Carregar os times antes de carregar as partidas
     loadTimes(loadTimesTable).then(() => {
-        loadPartidas(); // Chama loadPartidas após os times serem carregados
-        console.log("teste times -->", times);
+        loadPartidas();
+        //console.log("teste times -->", times);
     });
 
     // Função para editar uma partida
@@ -33,11 +33,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     CarregarDropRodada()
-
-    // Carregamento inicial
-    dropRodada.value = 1; 
-    document.getElementById('rodadaDisplay').textContent = dropRodada.value;
-    loadPartidas(dropRodada.value);
+    CarregamentoInicial()
 
     // Atualizar o título e carregar as partidas quando o usuário selecionar uma rodada
     dropRodada.addEventListener('change', function() {
@@ -46,6 +42,12 @@ document.addEventListener('DOMContentLoaded', function() {
         loadPartidas(rodadaSelecionada); 
     });
 });
+
+function CarregamentoInicial(){
+    dropRodada.value = 1; 
+    document.getElementById('rodadaDisplay').textContent = dropRodada.value;
+    loadPartidas(dropRodada.value);
+};
 
 function CarregarDropRodada(){
     const dropRodada = document.getElementById('dropRodada');

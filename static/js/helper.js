@@ -11,7 +11,6 @@ function loadTimes(loadTable) {
         })
         .then(data => {
             times = data;
-            console.log('Dados recebidos:', times);
             if (loadTable) loadTimesTable(times);
         })
         .catch(error => {

@@ -7,18 +7,17 @@ import (
 	"net/http"
 )
 
-// Estrutura para passar dados para os templates
 type PageVariables struct {
 	Title  string
 	Header string
 }
 
 func main() {
-	// Inicializa os templates
 	templates := template.Must(template.ParseFiles(
 		"templates/home.html",
 		"templates/menu.html",
 		"templates/partidas.html",
+		"templates/formularioPartida.html",
 	))
 
 	// Rota para a página inicial
@@ -45,9 +44,21 @@ func main() {
 		}
 	})
 
-	// Controllers
-	http.HandleFunc("/api/partidas", handler.GetPartidas) // Ajustado para /api/partidas
-	http.HandleFunc("/api/times", handler.GetTimes)       // Ajustado para /api/times
+	// Rota para o formulário de criação/edição de partida
+	http.HandleFunc("/partida/formulario", func(w http.ResponseWriter, r *http.Request) {
+		pageVariables := PageVariables{
+			Title:  "Criar/Editar Partida",
+			Header: "Criar/Editar Partida",
+		}
+		err := templates.ExecuteTemplate(w, "formularioPartida.html", pageVariables)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+	})
+
+	// Controllers para a API de partidas (GET, POST, PUT)
+	http.HandleFunc("/api/partidas", handler.PartidaHandler)
+	http.HandleFunc("/api/times", handler.GetTimes) // ??
 
 	// Servir arquivos estáticos
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("static/css"))))

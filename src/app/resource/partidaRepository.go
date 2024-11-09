@@ -2,6 +2,8 @@ package repository
 
 import (
 	"database/sql"
+	"log"
+
 	//"fmt"
 	"bolao/src/app/model"
 
@@ -59,10 +61,21 @@ func GetPartidas(filtro model.FiltroPartida) ([]model.Partida, error) {
 	return partidas, nil
 }
 
-func CreatePartida(partida model.Partida) error {
-	_, err := dbPartidas.Exec(`INSERT INTO "schema-bolao-24"."Partida" ("Rodada", "Time Casa", "Casa Gols", "Time Fora", "Fora Gols", "Data", "Vencedor") VALUES ($1, $2, $3, $4, $5, $6, $7)`,
-		partida.TimeCasa, partida.CasaGols, partida.TimeFora, partida.ForaGols, partida.Data, partida.Vencedor)
-	return err
+func CreatePartida(partidaCreate model.PartidaCreate) error {
+	_, err := dbPartidas.Exec(`
+        INSERT INTO "schema-bolao-24"."Partida" 
+        ("Rodada", "Time Casa", "Casa Gols", "Time Fora", "Fora Gols", "Data", "Vencedor") 
+        VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+		partidaCreate.Rodada, partidaCreate.TimeCasa, partidaCreate.CasaGols,
+		partidaCreate.TimeFora, partidaCreate.ForaGols, partidaCreate.Data,
+		partidaCreate.Vencedor)
+
+	if err != nil {
+		log.Printf("Erro ao inserir partida no banco de dados: %v", err)
+		return err
+	}
+
+	return nil
 }
 
 func UpdatePartida(id string, partida model.Partida) error {

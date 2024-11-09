@@ -9,8 +9,8 @@ func GetPartidas(filtro model.FiltroPartida) ([]model.Partida, error) {
 	return repository.GetPartidas(filtro)
 }
 
-func CreatePartida(partida model.Partida) error {
-	return repository.CreatePartida(partida)
+func CreatePartida(partidaCreate model.PartidaCreate) error {
+	return repository.CreatePartida(partidaCreate)
 }
 
 func UpdatePartida(id string, partida model.Partida) error {
