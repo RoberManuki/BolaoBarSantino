@@ -99,7 +99,7 @@ function CriarPartidaClick() {
         })
         .catch(error => {
             console.error('Erro:', error);
-            toastr.error("Ocorreu um erro ao criar a partida.");
+            toastr.error(error);
         });
     });
 

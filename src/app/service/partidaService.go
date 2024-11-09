@@ -25,6 +25,11 @@ func CreatePartida(partidaCreate model.PartidaCreate) error {
 		return errors.New(strings.ToLower(errMsg))
 	}
 
+	if partidaCreate.TimeCasa == partidaCreate.TimeFora {
+		errMsg := "Os times selecionados são iguais."
+		return errors.New(strings.ToLower(errMsg))
+	}
+
 	err := repository.CreatePartida(partidaCreate)
 	if err != nil {
 		log.Printf("Erro ao criar partida: %v", err)
