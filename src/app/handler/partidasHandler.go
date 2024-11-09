@@ -10,7 +10,6 @@ import (
 	"strings"
 )
 
-// PartidaHandler lida com solicitações para /partidas
 func PartidaHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
@@ -27,7 +26,6 @@ func PartidaHandler(w http.ResponseWriter, r *http.Request) {
 func GetPartidas(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Captura o valor da rodada da query string (se houver)
 	rodadaStr := r.URL.Query().Get("rodada")
 	rodada := 1
 	if rodadaStr != "" {
@@ -39,57 +37,55 @@ func GetPartidas(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Passa a rodada como filtro para o serviço
 	partidas, err := service.GetPartidas(model.FiltroPartida{Rodada: rodada})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Retorna as partidas em formato JSON
 	json.NewEncoder(w).Encode(partidas)
 }
 
 func CreatePartida(w http.ResponseWriter, r *http.Request) {
 	var partidaCreate model.PartidaCreate
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
-	err = json.Unmarshal(body, &partidaCreate)
+	err := json.NewDecoder(r.Body).Decode(&partidaCreate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		http.Error(w, "Erro ao processar dados", http.StatusBadRequest)
 		return
 	}
 
 	err = service.CreatePartida(partidaCreate)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	w.WriteHeader(http.StatusCreated)
+	w.Write([]byte("Partida criada com sucesso!"))
 }
 
 func UpdatePartida(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/partidas/")
 	var partida model.Partida
+
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	err = json.Unmarshal(body, &partida)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	err = service.UpdatePartida(id, partida)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
 	w.WriteHeader(http.StatusOK)
 }

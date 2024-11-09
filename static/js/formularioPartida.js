@@ -1,3 +1,4 @@
+// OnInit()
 document.addEventListener('DOMContentLoaded', function () {
     CarregarDropsTimes();
     CarregarDadosEdicao();
@@ -85,18 +86,23 @@ function CriarPartidaClick() {
         })
         .then(response => {
             if (response.ok) {
-                alert('Partida salva com sucesso!');
-                window.location.href = '/'; // Redirecionar para a página principal
+                toastr.success("Partida criada com sucesso!");
+                
+                setTimeout(function() {
+                    window.location.href = '/'; 
+                }, 3500);
             } else {
-                alert('Erro ao salvar a partida!');
+                return response.text().then(message => { 
+                    toastr.error(message);
+                });
             }
         })
         .catch(error => {
             console.error('Erro:', error);
-            alert('Erro ao salvar a partida!');
+            toastr.error("Ocorreu um erro ao criar a partida.");
         });
     });
-    
+
 };
 
 

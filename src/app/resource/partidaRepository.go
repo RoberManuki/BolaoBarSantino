@@ -83,3 +83,28 @@ func UpdatePartida(id string, partida model.Partida) error {
 		partida.TimeCasa, partida.CasaGols, partida.TimeFora, partida.ForaGols, partida.Data, partida.Vencedor, id)
 	return err
 }
+
+func JogouNaRodada(timeCasaId int, timeForaId int, rodada int) bool {
+
+	query := `
+        SELECT 1
+        FROM "schema-bolao-24"."Partida"
+        WHERE "Rodada" = $1 
+		AND (("Time Casa" = $2 OR "Time Fora" = $2)
+		OR ("Time Casa" = $3 OR "Time Fora" = $3))
+    `
+
+	result, err := dbPartidas.Query(query, rodada, timeCasaId, timeForaId)
+	if err != nil {
+		log.Printf("Erro ao executar a consulta: %v", err)
+		return false
+	}
+	defer result.Close()
+
+	if result.Next() {
+		log.Printf("Os times %d e %d jogaram na rodada %d", timeCasaId, timeForaId, rodada)
+		return true
+	}
+
+	return false
+}
