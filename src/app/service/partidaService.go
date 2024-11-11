@@ -47,3 +47,7 @@ func ValidacoesFormulario(partidaCreate model.PartidaCreate) error {
 
 	return nil
 }
+
+func GetPartidaByID(id string) (model.Partida, error) {
+	return repository.GetPartidaByID(id)
+}

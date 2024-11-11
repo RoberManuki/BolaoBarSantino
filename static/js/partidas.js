@@ -2,26 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Função para editar uma partida
     window.editPartida = function(id) {
-        fetch(`/api/partidas/${id}`)
-        .then(response => {
-            if (!response.ok) {
-                console.log("!response.ok");
-                throw new Error(`Erro ao buscar a partida com id ${id}`);
-            }
-            console.log("response", response)
-            return response.json();
-        })
-        .then(partida => {
-            partidaIdInput.value = partida.id;
-            document.getElementById('casaGols').value = partida.casa_gols;
-            document.getElementById('foraGols').value = partida.fora_gols;
-            document.getElementById('data').value = partida.data;
-            document.getElementById('timeCasa').value = partida.time_casa;
-            document.getElementById('timeFora').value = partida.time_fora;
-        })
-        .catch(error => {
-            console.error('Erro ao editar partida:', error);
-        });
+        window.location.href = `/partida/formulario?id=${id}`;
     };
 
     // Função para excluir uma partida
@@ -64,5 +45,5 @@ function CarregarDropRodada(){
         option.value = i;
         option.textContent = `Rodada ${i}`;
         dropRodada.appendChild(option);
-    }
+    };
 };

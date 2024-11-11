@@ -1,11 +1,10 @@
-// OnInit()
 document.addEventListener('DOMContentLoaded', function () {
-    CarregarDropsTimes();
-    CriarPartidaClick();
+    CarregarDropsTimes();  // Carrega os times nos selects
+    CarregarPartidaParaEdicao();  // Carrega os dados da partida se houver um ID
+    CriarPartidaClick(); // Cria ou atualiza a partida
 });
 
 function CarregarDropsTimes() {
-
     const timeCasaSelect = document.getElementById('timeCasa');
     const timeForaSelect = document.getElementById('timeFora');
 
@@ -21,31 +20,31 @@ function CarregarDropsTimes() {
             optionFora.textContent = time.nome;
             timeForaSelect.appendChild(optionFora);
         });
-
-        // Preencher os valores selecionados caso esteja editando a partida
-        if (document.getElementById('partidaId').value) {
-            const partidaId = document.getElementById('partidaId').value;
-            fetch(`/api/partidas/${partidaId}`)
-                .then(response => response.json())
-                .then(partida => {
-                    document.getElementById('timeCasa').value = partida.time_casa;
-                    document.getElementById('timeFora').value = partida.time_fora;
-                });
-        }
     });
 };
 
-//sepa nao precisa
-function ValidarTimesNaRodada(rodada, timeCasa, timeFora) {
-    return fetch(`/api/partidas/validar?rodada=${rodada}&timeCasa=${timeCasa}&timeFora=${timeFora}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.jaJogaram) {
-                toastr.error("Os times já se enfrentaram nesta rodada.");
-                return false;
-            }
-            return true;
-        });
+// Função para carregar os dados da partida para edição
+function CarregarPartidaParaEdicao() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const partidaId = urlParams.get('id');
+
+    if (partidaId) {
+        fetch(`/api/partidas/${partidaId}`)
+            .then(response => response.json())
+            .then(partida => {
+                // Preenche os campos do formulário com os dados da partida
+                document.getElementById('rodada').value = partida.rodada;
+                document.getElementById('timeCasa').value = partida.time_casa;
+                document.getElementById('casaGols').value = partida.casa_gols;
+                document.getElementById('timeFora').value = partida.time_fora;
+                document.getElementById('foraGols').value = partida.fora_gols;
+                document.getElementById('data').value = partida.data;  // Ajuste de formato de data pode ser necessário
+                document.getElementById('formTitle').textContent = `Editar Partida ${partidaId}`;
+            })
+            .catch(error => {
+                console.error('Erro ao carregar a partida:', error);
+            });
+    };
 };
 
 function CriarPartidaClick() {
@@ -53,30 +52,31 @@ function CriarPartidaClick() {
     formPartida.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        // Captura os valores dos campos no momento do submit
+        const partidaId = document.getElementById('partidaId').value;
         const rodada = parseInt(document.getElementById('rodada').value) || 0;
         const timeCasa = parseInt(document.getElementById('timeCasa').value) || 0;
         const timeFora = parseInt(document.getElementById('timeFora').value) || 0;
         const casaGols = parseInt(document.getElementById('casaGols').value) || 0;
         const foraGols = parseInt(document.getElementById('foraGols').value) || 0;
         const vencedor = (casaGols > foraGols) ? "Casa" : (foraGols > casaGols) ? "Fora" : "Empate";
-        const data = document.getElementById('data').value.split("T")[0]; // Pega apenas a parte da data
+        const data = document.getElementById('data').value.split("T")[0];
 
         ValidarTimesNaRodada(rodada, timeCasa, timeFora).then(isValid => {
             if (!isValid) return;
 
             const partida = {
+                id: partidaId,
                 rodada: rodada,
                 time_casa: timeCasa,
                 casa_gols: casaGols,
                 time_fora: timeFora,
                 fora_gols: foraGols,
-                data: data,               // (YYYY-MM-DD)
-                vencedor: vencedor,       // Pode ser "Casa", "Fora" ou "Empate"
+                data: data,
+                vencedor: vencedor
             };
 
-            const method = partida.id ? 'PUT' : 'POST';
-            const url = partida.id ? `/api/partidas/${partida.id}` : '/api/partidas';
+            const method = partidaId ? 'PUT' : 'POST';
+            const url = partidaId ? `/api/partidas/${partidaId}` : '/api/partidas';
 
             fetch(url, {
                 method: method,
@@ -103,6 +103,3 @@ function CriarPartidaClick() {
         });
     });
 };
-
-
-

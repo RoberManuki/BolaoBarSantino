@@ -56,8 +56,8 @@ func main() {
 		}
 	})
 
-	// Controllers para a API de partidas (GET, POST, PUT)
 	http.HandleFunc("/api/partidas", handler.PartidaHandler)
+	http.HandleFunc("/api/partidas/", handler.GetPartidaByID)
 	http.HandleFunc("/api/times", handler.GetTimes)
 	http.HandleFunc("/api/partidas/validar", handler.ValidarPartidaHandler)
 

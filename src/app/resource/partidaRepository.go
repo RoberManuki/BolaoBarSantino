@@ -103,3 +103,28 @@ func JogaramNaRodada(timeCasaId int, timeForaId int, rodada int) bool {
 
 	return result.Next()
 }
+
+func GetPartidaByID(id string) (model.Partida, error) {
+	query := `
+        SELECT "Id", "Time Casa", "Casa Gols", "Time Fora", "Fora Gols", "Data", "Vencedor", "Rodada"
+        FROM "schema-bolao-24"."Partida"
+        WHERE "Id" = $1
+    `
+	var p model.Partida
+	row := dbPartidas.QueryRow(query, id)
+	err := row.Scan(
+		&p.Id,
+		&p.TimeCasa,
+		&p.CasaGols,
+		&p.TimeFora,
+		&p.ForaGols,
+		&p.Data,
+		&p.Vencedor,
+		&p.Rodada,
+	)
+	if err != nil {
+		log.Printf("Erro ao consultar partida: %v", err)
+		return p, err
+	}
+	return p, nil
+}

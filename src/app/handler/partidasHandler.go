@@ -107,3 +107,20 @@ func ValidarPartidaHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
+
+func GetPartidaByID(w http.ResponseWriter, r *http.Request) {
+	id := strings.TrimPrefix(r.URL.Path, "/api/partidas/") // Pega o ID da URL
+	if id == "" {
+		http.Error(w, "ID da partida não informado", http.StatusBadRequest)
+		return
+	}
+
+	partida, err := service.GetPartidaByID(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(partida)
+}
