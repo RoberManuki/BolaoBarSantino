@@ -1,7 +1,6 @@
 // OnInit()
 document.addEventListener('DOMContentLoaded', function () {
     CarregarDropsTimes();
-    CarregarDadosEdicao();
     CriarPartidaClick();
 });
 
@@ -22,35 +21,34 @@ function CarregarDropsTimes() {
             optionFora.textContent = time.nome;
             timeForaSelect.appendChild(optionFora);
         });
-    });
 
+        // Preencher os valores selecionados caso esteja editando a partida
+        if (document.getElementById('partidaId').value) {
+            const partidaId = document.getElementById('partidaId').value;
+            fetch(`/api/partidas/${partidaId}`)
+                .then(response => response.json())
+                .then(partida => {
+                    document.getElementById('timeCasa').value = partida.time_casa;
+                    document.getElementById('timeFora').value = partida.time_fora;
+                });
+        }
+    });
 };
 
-function CarregarDadosEdicao() {
-
-    const partidaIdInput = document.getElementById('partidaId');
-    const urlParams = new URLSearchParams(window.location.search);
-    const partidaId = urlParams.get('id');
-
-    if (partidaId) {
-        document.getElementById('formTitle').textContent = 'Editar Partida';
-
-        fetch(`/api/partidas/${partidaId}`)
-            .then(response => response.json())
-            .then(partida => {
-                partidaIdInput.value = partida.id;
-                document.getElementById('casaGols').value = partida.casa_gols;
-                document.getElementById('foraGols').value = partida.fora_gols;
-                document.getElementById('data').value = partida.data;
-                document.getElementById('timeCasa').value = partida.time_casa;
-                document.getElementById('timeFora').value = partida.time_fora;
-            });
-    };
-
+//sepa nao precisa
+function ValidarTimesNaRodada(rodada, timeCasa, timeFora) {
+    return fetch(`/api/partidas/validar?rodada=${rodada}&timeCasa=${timeCasa}&timeFora=${timeFora}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.jaJogaram) {
+                toastr.error("Os times já se enfrentaram nesta rodada.");
+                return false;
+            }
+            return true;
+        });
 };
 
 function CriarPartidaClick() {
-
     const formPartida = document.getElementById('formPartida');
     formPartida.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -64,45 +62,47 @@ function CriarPartidaClick() {
         const vencedor = (casaGols > foraGols) ? "Casa" : (foraGols > casaGols) ? "Fora" : "Empate";
         const data = document.getElementById('data').value.split("T")[0]; // Pega apenas a parte da data
 
-        const partida = {
-            rodada: rodada,
-            time_casa: timeCasa,
-            casa_gols: casaGols,
-            time_fora: timeFora,
-            fora_gols: foraGols,
-            data: data,               // (YYYY-MM-DD)
-            vencedor: vencedor,       // Pode ser "Casa", "Fora" ou "Empate"
-        };
+        ValidarTimesNaRodada(rodada, timeCasa, timeFora).then(isValid => {
+            if (!isValid) return;
 
-        const method = partida.id ? 'PUT' : 'POST';
-        const url = partida.id ? `/api/partidas/${partida.id}` : '/api/partidas';
+            const partida = {
+                rodada: rodada,
+                time_casa: timeCasa,
+                casa_gols: casaGols,
+                time_fora: timeFora,
+                fora_gols: foraGols,
+                data: data,               // (YYYY-MM-DD)
+                vencedor: vencedor,       // Pode ser "Casa", "Fora" ou "Empate"
+            };
 
-        fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(partida)
-        })
-        .then(response => {
-            if (response.ok) {
-                toastr.success("Partida criada com sucesso!");
-                
-                setTimeout(function() {
-                    window.location.href = '/'; 
-                }, 3500);
-            } else {
-                return response.text().then(message => { 
-                    toastr.error(message);
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            toastr.error(error);
+            const method = partida.id ? 'PUT' : 'POST';
+            const url = partida.id ? `/api/partidas/${partida.id}` : '/api/partidas';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(partida)
+            })
+            .then(response => {
+                if (response.ok) {
+                    toastr.success("Partida salva com sucesso!");
+                    setTimeout(function() {
+                        window.location.href = '/';
+                    }, 3500);
+                } else {
+                    return response.text().then(message => { 
+                        toastr.error(message);
+                    });
+                }
+            })
+            .catch(error => {
+                toastr.error(error);
+            });
         });
     });
-
 };
+
 
 

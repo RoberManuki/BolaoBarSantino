@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bolao/src/app/model"
+	repository "bolao/src/app/resource"
 	"bolao/src/app/service"
 	"encoding/json"
 	"io"
@@ -88,4 +89,21 @@ func UpdatePartida(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+func ValidarPartidaHandler(w http.ResponseWriter, r *http.Request) {
+	rodadaStr := r.URL.Query().Get("rodada")
+	timeCasaStr := r.URL.Query().Get("timeCasa")
+	timeForaStr := r.URL.Query().Get("timeFora")
+
+	rodada, _ := strconv.Atoi(rodadaStr)
+	timeCasa, _ := strconv.Atoi(timeCasaStr)
+	timeFora, _ := strconv.Atoi(timeForaStr)
+
+	// Verificar se os times já jogaram
+	jogaram := repository.JogaramNaRodada(timeCasa, timeFora, rodada)
+
+	response := map[string]bool{"jaJogaram": jogaram}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(response)
 }

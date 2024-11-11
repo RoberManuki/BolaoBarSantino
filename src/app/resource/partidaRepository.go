@@ -84,15 +84,15 @@ func UpdatePartida(id string, partida model.Partida) error {
 	return err
 }
 
-func JogouNaRodada(timeCasaId int, timeForaId int, rodada int) bool {
+func JogaramNaRodada(timeCasaId int, timeForaId int, rodada int) bool {
 
 	query := `
-        SELECT 1
-        FROM "schema-bolao-24"."Partida"
-        WHERE "Rodada" = $1 
+		SELECT 1
+		FROM "schema-bolao-24"."Partida"
+		WHERE "Rodada" = $1 
 		AND (("Time Casa" = $2 OR "Time Fora" = $2)
 		OR ("Time Casa" = $3 OR "Time Fora" = $3))
-    `
+	`
 
 	result, err := dbPartidas.Query(query, rodada, timeCasaId, timeForaId)
 	if err != nil {
@@ -101,10 +101,5 @@ func JogouNaRodada(timeCasaId int, timeForaId int, rodada int) bool {
 	}
 	defer result.Close()
 
-	if result.Next() {
-		log.Printf("Os times %d e %d jogaram na rodada %d", timeCasaId, timeForaId, rodada)
-		return true
-	}
-
-	return false
+	return result.Next()
 }

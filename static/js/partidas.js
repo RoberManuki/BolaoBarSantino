@@ -1,25 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const loadTimesTable = false;
-
-    // Carregar os times antes de carregar as partidas
-    loadTimes(loadTimesTable).then(() => {
-        loadPartidas();
-        //console.log("teste times -->", times);
-    });
 
     // Função para editar uma partida
     window.editPartida = function(id) {
         fetch(`/api/partidas/${id}`)
-            .then(response => response.json())
-            .then(partida => {
-                document.getElementById('partidaId').value = partida.id;
-                document.getElementById('timeCasa').value = partida.time_casa;
-                document.getElementById('casaGols').value = partida.casa_gols;
-                document.getElementById('timeFora').value = partida.time_fora;
-                document.getElementById('foraGols').value = partida.fora_gols;
-                document.getElementById('data').value = partida.data;
-                document.getElementById('vencedor').value = partida.vencedor;
-            });
+        .then(response => {
+            if (!response.ok) {
+                console.log("!response.ok");
+                throw new Error(`Erro ao buscar a partida com id ${id}`);
+            }
+            console.log("response", response)
+            return response.json();
+        })
+        .then(partida => {
+            partidaIdInput.value = partida.id;
+            document.getElementById('casaGols').value = partida.casa_gols;
+            document.getElementById('foraGols').value = partida.fora_gols;
+            document.getElementById('data').value = partida.data;
+            document.getElementById('timeCasa').value = partida.time_casa;
+            document.getElementById('timeFora').value = partida.time_fora;
+        })
+        .catch(error => {
+            console.error('Erro ao editar partida:', error);
+        });
     };
 
     // Função para excluir uma partida
@@ -32,21 +34,25 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     };
 
-    CarregarDropRodada()
-    CarregamentoInicial()
-
     // Atualizar o título e carregar as partidas quando o usuário selecionar uma rodada
     dropRodada.addEventListener('change', function() {
         const rodadaSelecionada = dropRodada.value;
         document.getElementById('rodadaDisplay').textContent = rodadaSelecionada;
         loadPartidas(rodadaSelecionada); 
     });
+
+    CarregarDropRodada()
+    CarregamentoInicial()
 });
 
 function CarregamentoInicial(){
+    const loadTimesTable = false;
     dropRodada.value = 1; 
     document.getElementById('rodadaDisplay').textContent = dropRodada.value;
-    loadPartidas(dropRodada.value);
+
+    loadTimes(loadTimesTable).then(() => {
+        loadPartidas(dropRodada.value);
+    });
 };
 
 function CarregarDropRodada(){

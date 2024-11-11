@@ -58,7 +58,8 @@ func main() {
 
 	// Controllers para a API de partidas (GET, POST, PUT)
 	http.HandleFunc("/api/partidas", handler.PartidaHandler)
-	http.HandleFunc("/api/times", handler.GetTimes) // ??
+	http.HandleFunc("/api/times", handler.GetTimes)
+	http.HandleFunc("/api/partidas/validar", handler.ValidarPartidaHandler)
 
 	// Servir arquivos estáticos
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("static/css"))))

@@ -38,7 +38,7 @@ func ValidacoesFormulario(partidaCreate model.PartidaCreate) error {
 		return errors.New(strings.ToLower(errMsg))
 	}
 
-	jogouNaRodada := repository.JogouNaRodada(partidaCreate.TimeCasa, partidaCreate.TimeFora, partidaCreate.Rodada)
+	jogouNaRodada := repository.JogaramNaRodada(partidaCreate.TimeCasa, partidaCreate.TimeFora, partidaCreate.Rodada)
 	if jogouNaRodada {
 		errMsg := "Um dos times já jogou nesta rodada."
 		log.Printf("Erro: %s", errMsg)
