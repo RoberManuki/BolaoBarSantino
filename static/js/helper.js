@@ -64,3 +64,31 @@ function loadPartidas(rodada) {
         });
 }
 
+function ValidarTimesNaRodada(rodada, timeCasa, timeFora, edicao) {
+    return new Promise((resolve, reject) => {
+        if (edicao) resolve(true);
+
+        if (timeCasa === timeFora) {
+            toastr.error("Os times selecionados são iguais.");
+            resolve(false);
+        };
+
+        fetch(`/api/partidas/validar?rodada=${rodada}&timeCasa=${timeCasa}&timeFora=${timeFora}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.jaJogaram) {
+                    toastr.error("Algum time selecionado já jogou nesta rodada.");
+                    resolve(false); 
+                } else {
+                    resolve(true); 
+                }
+            })
+            .catch(error => {
+                toastr.error("Erro ao verificar os times na rodada.");
+                console.error(error);
+                resolve(false);
+            });
+    });
+}
+
+

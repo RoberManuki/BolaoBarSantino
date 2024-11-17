@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-
     // Função para editar uma partida
     window.editPartida = function(id) {
         window.location.href = `/partida/formulario?id=${id}`;

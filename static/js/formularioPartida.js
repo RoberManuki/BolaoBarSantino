@@ -52,7 +52,9 @@ function CriarPartidaClick() {
     formPartida.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const partidaId = document.getElementById('partidaId').value;
+        const urlParams = new URLSearchParams(window.location.search);
+        const partidaId = urlParams.get('id');
+        const edicao = partidaId ? true : false;
         const rodada = parseInt(document.getElementById('rodada').value) || 0;
         const timeCasa = parseInt(document.getElementById('timeCasa').value) || 0;
         const timeFora = parseInt(document.getElementById('timeFora').value) || 0;
@@ -61,7 +63,7 @@ function CriarPartidaClick() {
         const vencedor = (casaGols > foraGols) ? "Casa" : (foraGols > casaGols) ? "Fora" : "Empate";
         const data = document.getElementById('data').value.split("T")[0];
 
-        ValidarTimesNaRodada(rodada, timeCasa, timeFora).then(isValid => {
+        ValidarTimesNaRodada(rodada, timeCasa, timeFora, edicao).then(isValid => {
             if (!isValid) return;
 
             const partida = {
@@ -75,8 +77,8 @@ function CriarPartidaClick() {
                 vencedor: vencedor
             };
 
-            const method = partidaId ? 'PUT' : 'POST';
-            const url = partidaId ? `/api/partidas/${partidaId}` : '/api/partidas';
+            const method = edicao ? 'PUT' : 'POST';
+            const url = edicao ? `/api/partidas/${partidaId}` : '/api/partidas';
 
             fetch(url, {
                 method: method,
