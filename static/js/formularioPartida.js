@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
-    CarregarDropsTimes();  // Carrega os times nos selects
-    CarregarPartidaParaEdicao();  // Carrega os dados da partida se houver um ID
-    CriarPartidaClick(); // Cria ou atualiza a partida
+    CarregarDropsTimes();
+    CarregarPartidaParaEdicao();
+    CriarEditarPartidaClick();
 });
 
 function CarregarDropsTimes() {
@@ -23,7 +23,6 @@ function CarregarDropsTimes() {
     });
 };
 
-// Função para carregar os dados da partida para edição
 function CarregarPartidaParaEdicao() {
     const urlParams = new URLSearchParams(window.location.search);
     const partidaId = urlParams.get('id');
@@ -32,7 +31,6 @@ function CarregarPartidaParaEdicao() {
         fetch(`/api/partidas/${partidaId}`)
             .then(response => response.json())
             .then(partida => {
-                // Preenche os campos do formulário com os dados da partida
                 document.getElementById('rodada').value = partida.rodada;
                 document.getElementById('timeCasa').value = partida.time_casa;
                 document.getElementById('casaGols').value = partida.casa_gols;
@@ -47,7 +45,7 @@ function CarregarPartidaParaEdicao() {
     };
 };
 
-function CriarPartidaClick() {
+function CriarEditarPartidaClick() {
     const formPartida = document.getElementById('formPartida');
     formPartida.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -55,6 +53,7 @@ function CriarPartidaClick() {
         const urlParams = new URLSearchParams(window.location.search);
         const partidaId = urlParams.get('id');
         const edicao = partidaId ? true : false;
+        const mensagemSucesso = edicao ? "Partida editada com sucesso!" : "Partida criada com sucesso!";
         const rodada = parseInt(document.getElementById('rodada').value) || 0;
         const timeCasa = parseInt(document.getElementById('timeCasa').value) || 0;
         const timeFora = parseInt(document.getElementById('timeFora').value) || 0;
@@ -67,7 +66,7 @@ function CriarPartidaClick() {
             if (!isValid) return;
 
             const partida = {
-                id: partidaId,
+                id: parseInt(partidaId) || 0,
                 rodada: rodada,
                 time_casa: timeCasa,
                 casa_gols: casaGols,
@@ -89,10 +88,11 @@ function CriarPartidaClick() {
             })
             .then(response => {
                 if (response.ok) {
-                    toastr.success("Partida salva com sucesso!");
+                    toastr.success(mensagemSucesso);
                     setTimeout(function() {
                         window.location.href = '/';
                     }, 3500);
+
                 } else {
                     return response.text().then(message => { 
                         toastr.error(message);

@@ -2,31 +2,30 @@ package handler
 
 import (
 	"bolao/src/app/model"
-	repository "bolao/src/app/resource"
-	"bolao/src/app/service"
+	partidaRepository "bolao/src/app/resource"
+	partidaService "bolao/src/app/service"
 	"encoding/json"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strconv"
 	"strings"
 )
 
+// CRUD partidas
 func PartidaHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
-		GetPartidas(w, r)
+		Get(w, r)
 	case http.MethodPost:
-		CreatePartida(w, r)
-	case http.MethodPut:
-		UpdatePartida(w, r)
+		Create(w, r)
 	default:
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
 	}
 }
 
-func GetPartidas(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
+func Get(w http.ResponseWriter, r *http.Request) {
 	rodadaStr := r.URL.Query().Get("rodada")
 	rodada := 1
 	if rodadaStr != "" {
@@ -38,16 +37,17 @@ func GetPartidas(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	partidas, err := service.GetPartidas(model.FiltroPartida{Rodada: rodada})
+	partidas, err := partidaService.GetPartidas(model.FiltroPartida{Rodada: rodada})
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(partidas)
 }
 
-func CreatePartida(w http.ResponseWriter, r *http.Request) {
+func Create(w http.ResponseWriter, r *http.Request) {
 	var partidaCreate model.PartidaCreate
 
 	err := json.NewDecoder(r.Body).Decode(&partidaCreate)
@@ -56,7 +56,7 @@ func CreatePartida(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = service.CreatePartida(partidaCreate)
+	err = partidaService.CreatePartida(partidaCreate)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -66,8 +66,13 @@ func CreatePartida(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Partida criada com sucesso!"))
 }
 
-func UpdatePartida(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/partidas/")
+func Update(w http.ResponseWriter, r *http.Request) {
+	id, err := extrairID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	var partida model.Partida
 
 	body, err := io.ReadAll(r.Body)
@@ -82,13 +87,84 @@ func UpdatePartida(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = service.UpdatePartida(id, partida)
+	err = partidaService.UpdatePartida(id, partida)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("Partida atualizada com sucesso!"))
+}
+
+// Função auxiliar para extrair e validar o id da URL
+func extrairID(r *http.Request) (int, error) {
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/partidas/") // Pega o id da URL (como string)
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		return 0, fmt.Errorf("ID inválido")
+	}
+	return id, nil
+}
+
+func PartidaByID(w http.ResponseWriter, r *http.Request) {
+	id, err := extrairID(r)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	switch r.Method {
+	case http.MethodGet: // GET
+		if id == 0 {
+			http.Error(w, "ID da partida não informado", http.StatusBadRequest)
+			return
+		}
+
+		log.Println("api/GET")
+		partida, err := partidaService.GetPartidaByID(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(partida)
+
+	case http.MethodPut: // PUT
+		var partida model.Partida
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		log.Println("api/PUT")
+		err = json.Unmarshal(body, &partida)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		err = partidaService.UpdatePartida(id, partida)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Partida atualizada com sucesso!"))
+
+	case http.MethodDelete: // DELETE
+		// A lógica do delete pode ser similar
+		// err := partidaService.DeletePartida(id)
+		// if err != nil {
+		//     http.Error(w, err.Error(), http.StatusInternalServerError)
+		//     return
+		// }
+		// w.WriteHeader(http.StatusOK)
+		// w.Write([]byte("Partida excluída com sucesso!"))
+
+	default:
+		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)
+	}
 }
 
 func ValidarPartidaHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,27 +176,9 @@ func ValidarPartidaHandler(w http.ResponseWriter, r *http.Request) {
 	timeCasa, _ := strconv.Atoi(timeCasaStr)
 	timeFora, _ := strconv.Atoi(timeForaStr)
 
-	// Verificar se os times já jogaram
-	jogaram := repository.JogaramNaRodada(timeCasa, timeFora, rodada)
+	jogaram := partidaRepository.JogaramNaRodada(rodada, timeCasa, timeFora)
 
 	response := map[string]bool{"jaJogaram": jogaram}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-}
-
-func GetPartidaByID(w http.ResponseWriter, r *http.Request) {
-	id := strings.TrimPrefix(r.URL.Path, "/api/partidas/") // Pega o ID da URL
-	if id == "" {
-		http.Error(w, "ID da partida não informado", http.StatusBadRequest)
-		return
-	}
-
-	partida, err := service.GetPartidaByID(id)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(partida)
 }

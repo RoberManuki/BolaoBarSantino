@@ -57,9 +57,10 @@ func main() {
 	})
 
 	http.HandleFunc("/api/partidas", handler.PartidaHandler)
-	http.HandleFunc("/api/partidas/", handler.GetPartidaByID)
-	http.HandleFunc("/api/times", handler.GetTimes)
+	http.HandleFunc("/api/partidas/", handler.PartidaByID)
 	http.HandleFunc("/api/partidas/validar", handler.ValidarPartidaHandler)
+
+	http.HandleFunc("/api/times", handler.GetTimes)
 
 	// Servir arquivos estáticos
 	http.Handle("/css/", http.StripPrefix("/css/", http.FileServer(http.Dir("static/css"))))

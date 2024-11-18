@@ -1,8 +1,7 @@
 let times = [];
 
-// Função para carregar os times
 function loadTimes(loadTable) {
-    return fetch('/api/times')  // Retorna a Promise do fetch
+    return fetch('/api/times') 
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Network response was not ok for: ${'/api/times'}`);
@@ -66,21 +65,25 @@ function loadPartidas(rodada) {
 
 function ValidarTimesNaRodada(rodada, timeCasa, timeFora, edicao) {
     return new Promise((resolve, reject) => {
-        if (edicao) resolve(true);
+        if (edicao) {
+            resolve(true);
+            return;
+        }
 
         if (timeCasa === timeFora) {
             toastr.error("Os times selecionados são iguais.");
             resolve(false);
-        };
+            return;
+        }
 
         fetch(`/api/partidas/validar?rodada=${rodada}&timeCasa=${timeCasa}&timeFora=${timeFora}`)
             .then(response => response.json())
             .then(data => {
                 if (data.jaJogaram) {
                     toastr.error("Algum time selecionado já jogou nesta rodada.");
-                    resolve(false); 
+                    resolve(false);
                 } else {
-                    resolve(true); 
+                    resolve(true);
                 }
             })
             .catch(error => {
@@ -90,5 +93,6 @@ function ValidarTimesNaRodada(rodada, timeCasa, timeFora, edicao) {
             });
     });
 }
+
 
 

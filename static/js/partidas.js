@@ -1,10 +1,19 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Função para editar uma partida
+
+    const dropRodada = document.getElementById('dropRodada');
+    
+    // window.onload = function() {
+    //     const rodadaAtual = sessionStorage.getItem('rodadaAtual');
+    //     if (rodadaAtual) {
+    //         loadPartidas(parseInt(rodadaAtual));
+    //         sessionStorage.removeItem('rodadaAtual');
+    //     }
+    // };
+
     window.editPartida = function(id) {
         window.location.href = `/partida/formulario?id=${id}`;
     };
 
-    // Função para excluir uma partida
     window.deletePartida = function(id) {
         fetch(`/api/partidas/${id}`, { method: 'DELETE' })
             .then(response => {
@@ -18,14 +27,14 @@ document.addEventListener('DOMContentLoaded', function() {
     dropRodada.addEventListener('change', function() {
         const rodadaSelecionada = dropRodada.value;
         document.getElementById('rodadaDisplay').textContent = rodadaSelecionada;
-        loadPartidas(rodadaSelecionada); 
+        loadPartidas(rodadaSelecionada);
     });
 
-    CarregarDropRodada()
-    CarregamentoInicial()
+    CarregarDropRodada();
+    CarregamentoInicial();
 });
 
-function CarregamentoInicial(){
+function CarregamentoInicial() {
     const loadTimesTable = false;
     dropRodada.value = 1; 
     document.getElementById('rodadaDisplay').textContent = dropRodada.value;
@@ -35,9 +44,7 @@ function CarregamentoInicial(){
     });
 };
 
-function CarregarDropRodada(){
-    const dropRodada = document.getElementById('dropRodada');
-
+function CarregarDropRodada() {
     // Preencher o dropdown com as rodadas de 1 a 38
     for (let i = 1; i <= 38; i++) {
         let option = document.createElement('option');
