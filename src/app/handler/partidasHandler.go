@@ -99,7 +99,7 @@ func Update(w http.ResponseWriter, r *http.Request) {
 
 // Função auxiliar para extrair e validar o id da URL
 func extrairID(r *http.Request) (int, error) {
-	idStr := strings.TrimPrefix(r.URL.Path, "/api/partidas/") // Pega o id da URL (como string)
+	idStr := strings.TrimPrefix(r.URL.Path, "/api/partidas/")
 	id, err := strconv.Atoi(idStr)
 	if err != nil || id <= 0 {
 		return 0, fmt.Errorf("ID inválido")
