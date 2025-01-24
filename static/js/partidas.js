@@ -15,13 +15,23 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     window.deletePartida = function(id) {
-        fetch(`/api/partidas/${id}`, { method: 'DELETE' })
-            .then(response => {
-                if (response.ok) {
-                    loadPartidas();
-                }
-            });
-    };
+        event.preventDefault(); 
+        
+        if (confirm('Tem certeza que deseja excluir essa partida?')) {
+            fetch(`/api/partidas/${id}`, { method: 'DELETE' })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Partida excluída com sucesso!');
+                        loadPartidas(dropRodada.value);
+                    } else {
+                        alert('Erro ao excluir a partida');
+                    }
+                })
+                .catch(err => {
+                    alert('Erro de rede: ' + err);
+                });
+        }
+    };    
 
     // Atualizar o título e carregar as partidas quando o usuário selecionar uma rodada
     dropRodada.addEventListener('change', function() {

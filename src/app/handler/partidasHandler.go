@@ -152,15 +152,14 @@ func PartidaByID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("Partida atualizada com sucesso!"))
 
-	case http.MethodDelete: // DELETE
-		// A lógica do delete pode ser similar
-		// err := partidaService.DeletePartida(id)
-		// if err != nil {
-		//     http.Error(w, err.Error(), http.StatusInternalServerError)
-		//     return
-		// }
-		// w.WriteHeader(http.StatusOK)
-		// w.Write([]byte("Partida excluída com sucesso!"))
+	case http.MethodDelete:
+		err := partidaService.DeletePartida(id)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("Partida excluída com sucesso!"))
 
 	default:
 		http.Error(w, "Método não permitido", http.StatusMethodNotAllowed)

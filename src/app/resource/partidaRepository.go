@@ -123,3 +123,12 @@ func GetPartidaByID(id int) (model.Partida, error) {
 	}
 	return p, nil
 }
+
+func DeletePartida(id int) error {
+	_, err := dbPartidas.Exec(`DELETE FROM "schema-bolao-24"."Partida" WHERE "Id" = $1`, id)
+	if err != nil {
+		log.Printf("Erro ao excluir a partida: %v", err)
+		return err
+	}
+	return nil
+}

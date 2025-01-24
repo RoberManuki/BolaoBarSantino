@@ -28,3 +28,12 @@ func CreatePartida(partidaCreate model.PartidaCreate) error {
 func GetPartidaByID(id int) (model.Partida, error) {
 	return repository.GetPartidaByID(id)
 }
+
+func DeletePartida(id int) error {
+	err := repository.DeletePartida(id)
+	if err != nil {
+		log.Printf("Erro ao excluir partida na camada de serviço: %v", err)
+		return err
+	}
+	return nil
+}
